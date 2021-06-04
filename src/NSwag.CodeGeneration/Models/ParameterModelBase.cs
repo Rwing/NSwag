@@ -164,6 +164,9 @@ namespace NSwag.CodeGeneration.Models
         /// <summary>Gets a value indicating whether the parameter is of type array.</summary>
         public bool IsArray => Schema.Type.HasFlag(JsonObjectType.Array) || _parameter.CollectionFormat == OpenApiParameterCollectionFormat.Multi;
 
+        public bool IsEnum => _parameter.@enum != null;
+
+
         /// <summary>Gets a value indicating whether the parameter is a string array.</summary>
         public bool IsStringArray => IsArray && Schema.Item?.ActualSchema.Type.HasFlag(JsonObjectType.String) == true;
 

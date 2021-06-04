@@ -48,6 +48,9 @@ namespace NSwag
         [JsonProperty(PropertyName = "x-originalName", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         public string OriginalName { get; set; }
 
+        [JsonProperty(PropertyName = "enum", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public string[] @enum { get; set; }
+
         /// <summary>Gets or sets the kind of the parameter.</summary>
         [JsonProperty(PropertyName = "in", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public OpenApiParameterKind Kind
