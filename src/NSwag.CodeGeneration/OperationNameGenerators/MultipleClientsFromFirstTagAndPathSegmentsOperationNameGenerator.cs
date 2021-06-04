@@ -51,7 +51,7 @@ namespace NSwag.CodeGeneration.OperationNameGenerators
                 operationName += ConversionUtilities.ConvertToUpperCamelCase(httpMethod, false);
             }
 
-            return operationName;
+            return ConversionUtilities.ConvertToUpperCamelCase(operationName, false);
         }
 
         /// <summary>Converts the path to an operation name.</summary>
@@ -59,11 +59,11 @@ namespace NSwag.CodeGeneration.OperationNameGenerators
         /// <returns>The operation name.</returns>
         internal static string ConvertPathToName(string path)
         {
-            return path
+             return string.Join("-", path
                 .Split('/')
                 .Where(p => !p.Contains("{") && !string.IsNullOrWhiteSpace(p))
-                .Reverse()
-                .FirstOrDefault() ?? "Index";
+                .Skip(1)
+                .ToArray()) ?? "Index";
         }
     }
 }
