@@ -231,10 +231,7 @@
 {%                 endfor -%}
                 request_.Content = new System.Net.Http.FormUrlEncodedContent(keyValues_);
 {%             else -%}
-                var boundary_ = System.Guid.NewGuid().ToString();
-                var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
-                content_.Headers.Remove("Content-Type");
-                content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
+                var json = new Newtonsoft.Json.Linq.JObject();
 {%                 for parameter in operation.FormParameters -%}
 {%                     if parameter.IsNullable -%}
                 if ({{ parameter.VariableName }} != null)
@@ -265,13 +262,15 @@
                         content_.Add(new System.Net.Http.StringContent(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture)), "{{ parameter.Name }}");
                     }
 {%                     elseif parameter.IsObject -%}
-                    content_.Add(new System.Net.Http.StringContent({% if UseSystemTextJson %}System.Text.Json.JsonSerializer.Serialize{% else %}Newtonsoft.Json.JsonConvert.SerializeObject{% endif %}({{ parameter.VariableName }}, {% if UseRequestAndResponseSerializationSettings %}_requestSettings{% else %}_settings{% endif %}.Value)), "{{ parameter.Name }}");
+                    json["{{ parameter.Name }}"] = {% if UseSystemTextJson %}System.Text.Json.JsonSerializer.Serialize{% else %}Newtonsoft.Json.JsonConvert.SerializeObject{% endif %}({{ parameter.VariableName }}, {% if UseRequestAndResponseSerializationSettings %}_requestSettings{% else %}_settings{% endif %}.Value);
 {%                     else -%}
-                    content_.Add(new System.Net.Http.StringContent(ConvertToString({{ parameter.VariableName }}, System.Globalization.CultureInfo.InvariantCulture)), "{{ parameter.Name }}");
+                    json["{{ parameter.Name }}"] = {{ parameter.VariableName }}{% if parameter.IsEnum %}.ToString(){% endif %};
 {%                     endif -%}
                 }
 {%                 endfor -%}
-                request_.Content = content_;
+                var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(json, _settings.Value));
+				content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+				request_.Content = content_;
 {%             endif -%}
 {%         elseif operation.IsGetOrDeleteOrHead == false -%}
                 request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "{{ operation.Produces }}");
